@@ -5,12 +5,25 @@ import (
 	"os"
 
 	"github.com/jiehui555/rpitool/cmd/topfeel"
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
+)
+
+var (
+	envFile string
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "rpitool",
 	Short: "一个多功能命令行工具",
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if envFile != "" {
+			if err := godotenv.Load(envFile); err != nil {
+				return fmt.Errorf("无法加载环境变量文件 %s: %w", envFile, err)
+			}
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("欢迎使用 rpitool！使用 --help 查看帮助。")
 	},
@@ -19,6 +32,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
 	rootCmd.AddCommand(topfeel.TopfeelCmd)
+	rootCmd.PersistentFlags().StringVarP(&envFile, "env", "e", ".env", "指定环境变量文件")
 }
 
 // Execute 将所有子命令加入根命令并执行
