@@ -31,8 +31,10 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
-	rootCmd.AddCommand(topfeel.TopfeelCmd)
 	rootCmd.PersistentFlags().StringVarP(&envFile, "env", "e", ".env", "指定环境变量文件")
+
+	rootCmd.AddCommand(topfeel.TopfeelCmd)
+	rootCmd.AddCommand(demoCmd)
 }
 
 // Execute 将所有子命令加入根命令并执行
