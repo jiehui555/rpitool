@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jiehui555/rpitool/cmd/huawei"
 	"github.com/jiehui555/rpitool/cmd/topfeel"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
@@ -34,6 +35,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&envFile, "env", "e", ".env", "指定环境变量文件")
 
 	rootCmd.AddCommand(topfeel.TopfeelCmd)
+	rootCmd.AddCommand(huawei.HuaweiCmd)
 	rootCmd.AddCommand(demoCmd)
 }
 
