@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jiehui555/rpitool/cmd/topfeel"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +14,11 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("欢迎使用 rpitool！使用 --help 查看帮助。")
 	},
+}
+
+func init() {
+	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
+	rootCmd.AddCommand(topfeel.TopfeelCmd)
 }
 
 // Execute 将所有子命令加入根命令并执行
