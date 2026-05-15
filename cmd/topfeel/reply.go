@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -14,47 +13,47 @@ import (
 )
 
 func init() {
-	TopfeelCmd.AddCommand(signInCmd)
+	TopfeelCmd.AddCommand(replyCmd)
 }
 
-var signInCmd = &cobra.Command{
-	Use:   "sign-in",
-	Short: "自动签到",
+var replyCmd = &cobra.Command{
+	Use:   "reply",
+	Short: "自动回复",
 	Run: func(cmd *cobra.Command, args []string) {
-		result := executeSignIn()
+		result := executeReply()
 		if result.Success {
-			fmt.Printf("✅ 签到成功: %s\n", result.Message)
+			fmt.Printf("✅ 回复成功: %s\n", result.Message)
 		} else {
-			fmt.Printf("❌ 签到失败: %s\n", result.Message)
+			fmt.Printf("❌ 回复失败: %s\n", result.Message)
 		}
 	},
 }
 
-type SignInResult struct {
+type ReplyResult struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 }
 
-// 执行签到逻辑
-func executeSignIn() SignInResult {
-	// 生成时间戳（毫秒）
-	now := time.Now().UnixMilli()
-	newTime := now + int64(rand.Intn(4)+3)*1000 // 随机 3~6 秒
-
+func executeReply() ReplyResult {
 	body := map[string]interface{}{
-		"oldtime": now,
-		"newtime": newTime,
+		"images":   "",
+		"goods_id": "1863",
+		"vocdec":   0,
+		"voc":      "",
+		"content":  "拿个积分",
+		"pid":      45528,
+		"to_name":  "辉HHH",
 	}
 
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
-		return SignInResult{Success: false, Message: "JSON 序列化失败: " + err.Error()}
+		return ReplyResult{Success: false, Message: "JSON 序列化失败: " + err.Error()}
 	}
 
-	topfeelSignInURL := "https://bbs.topfeel.com/api/gift/day_sign"
-	req, err := http.NewRequest("POST", topfeelSignInURL, bytes.NewReader(bodyBytes))
+	topfeelReplyURL := "https://bbs.topfeel.com/api/user/addGoodsComment"
+	req, err := http.NewRequest("POST", topfeelReplyURL, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return SignInResult{Success: false, Message: "创建请求失败: " + err.Error()}
+		return ReplyResult{Success: false, Message: "创建请求失败: " + err.Error()}
 	}
 
 	// 设置请求头
@@ -70,18 +69,18 @@ func executeSignIn() SignInResult {
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		return SignInResult{Success: false, Message: "网络请求失败: " + err.Error()}
+		return ReplyResult{Success: false, Message: "网络请求失败: " + err.Error()}
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return SignInResult{Success: false, Message: "读取响应失败: " + err.Error()}
+		return ReplyResult{Success: false, Message: "读取响应失败: " + err.Error()}
 	}
 
 	// 非 200 状态码处理
 	if resp.StatusCode != http.StatusOK {
-		return SignInResult{
+		return ReplyResult{
 			Success: false,
 			Message: fmt.Sprintf("HTTP %d: %s", resp.StatusCode, string(respBody)),
 		}
@@ -90,7 +89,7 @@ func executeSignIn() SignInResult {
 	// 解析响应
 	var result map[string]interface{}
 	if err := json.Unmarshal(respBody, &result); err != nil {
-		return SignInResult{Success: false, Message: "JSON 解析失败: " + err.Error()}
+		return ReplyResult{Success: false, Message: "JSON 解析失败: " + err.Error()}
 	}
 
 	// 输出原始响应（便于调试）
@@ -106,9 +105,9 @@ func executeSignIn() SignInResult {
 		msg = m
 	}
 
-	if code != 0 {
-		return SignInResult{Success: false, Message: msg}
+	if code != 200 {
+		return ReplyResult{Success: false, Message: msg}
 	}
 
-	return SignInResult{Success: true, Message: msg}
+	return ReplyResult{Success: true, Message: msg}
 }
