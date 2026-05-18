@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -34,13 +35,19 @@ type ReplyResult struct {
 	Message string `json:"message"`
 }
 
+func randomReplyContent() string {
+	contents := []string{"拿个积分", "加油加油", "每日回复拿积分", "继续签到", "拿分拿分"}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return contents[r.Intn(len(contents))]
+}
+
 func executeReply() ReplyResult {
 	body := map[string]interface{}{
 		"images":   "",
 		"goods_id": "1863",
 		"vocdec":   0,
 		"voc":      "",
-		"content":  "拿个积分",
+		"content":  randomReplyContent(),
 		"pid":      45528,
 		"to_name":  "辉HHH",
 	}
